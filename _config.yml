@@ -81,3 +81,7 @@ deploy:
   type: git
   repo: git@github.com:Brucise/Brucise.github.io.git
   branch: master
+# Security
+##
+encrypt:
+    enable: true
