@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-center-circle.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,单元测试工具,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近换到了新组，增值-交叉BU，主要的业务就是机票完成页上售卖一些X产品，我是写服务端的，然后jenkins上单元测试覆盖率有点低，目前branch的覆盖率在百分之十四，而目标是在四月一号前达到百分之五十。所以最近接触的单测工具有点多，用过的几款有：powermock、mockito、jmockito。而powermock跟jenkins上的jacoco不兼容，mockito无法mock私有方">
+<meta name="keywords" content="java,单元测试工具">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jmockito">
+<meta property="og:url" content="http://yoursite.com/2019/03/07/jmockito/index.html">
+<meta property="og:site_name" content="蜗牛壳">
+<meta property="og:description" content="前言最近换到了新组，增值-交叉BU，主要的业务就是机票完成页上售卖一些X产品，我是写服务端的，然后jenkins上单元测试覆盖率有点低，目前branch的覆盖率在百分之十四，而目标是在四月一号前达到百分之五十。所以最近接触的单测工具有点多，用过的几款有：powermock、mockito、jmockito。而powermock跟jenkins上的jacoco不兼容，mockito无法mock私有方">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/jenkinscover.png">
+<meta property="og:updated_time" content="2019-03-07T12:03:31.403Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jmockito">
+<meta name="twitter:description" content="前言最近换到了新组，增值-交叉BU，主要的业务就是机票完成页上售卖一些X产品，我是写服务端的，然后jenkins上单元测试覆盖率有点低，目前branch的覆盖率在百分之十四，而目标是在四月一号前达到百分之五十。所以最近接触的单测工具有点多，用过的几款有：powermock、mockito、jmockito。而powermock跟jenkins上的jacoco不兼容，mockito无法mock私有方">
+<meta name="twitter:image" content="http://yoursite.com/images/jenkinscover.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/03/07/jmockito/">
+
+
+
+
+
+  <title>jmockito | 蜗牛壳</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蜗牛壳</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-lixinge">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            LiXinGe
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/07/jmockito/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ChenHuang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/樱木2.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蜗牛壳">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">jmockito</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-07T19:01:00+08:00">
+                2019-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近换到了新组，增值-交叉BU，主要的业务就是机票完成页上售卖一些X产品，我是写服务端的，然后jenkins上单元测试覆盖率有点低，目前branch的覆盖率在百分之十四，而目标是在四月一号前达到百分之五十。所以最近接触的单测工具有点多，用过的几款有：powermock、mockito、jmockito。而powermock跟jenkins上的jacoco不兼容，mockito无法mock私有方法，jmokito成功提升了单测覆盖率。在这里总结一下jmockito的使用方法。<br><img src="/images/jenkinscover.png" alt="覆盖率图" title="警察叔叔，就是这个人"></p>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><a href="http://jmockit.github.io/" target="_blank" rel="noopener">jmockito网站</a><br>jmokito可以用来mock静态方法，类内部的私有方法、私有变量以及引用的其他类的方法。这里就不讲怎么引用maven包，直接上手用了。</p>
+<h1 id="几个概念"><a href="#几个概念" class="headerlink" title="几个概念"></a>几个概念</h1><h2 id="CUT-code-under-test"><a href="#CUT-code-under-test" class="headerlink" title="CUT(code under test)"></a>CUT(code under test)</h2><p>被测试代码</p>
+<h2 id="mock和stub"><a href="#mock和stub" class="headerlink" title="mock和stub"></a>mock和stub</h2><p>mock是基于“行为”的测试，主要测试cut和被依赖着之间的相互调用；stub是基于“状态”的测试，主要测试CUT和被依赖者内部数据的状态。JMockit有两套API，mock API用来进行mock测试；mock-up API用来进行stub测试。</p>
+<h1 id="API用法"><a href="#API用法" class="headerlink" title="API用法"></a>API用法</h1><h2 id="Mocked"><a href="#Mocked" class="headerlink" title="@Mocked"></a>@Mocked</h2><p>加上了JMockit的API @Mocked, JMockit会实例化这个对象<br>Mocked可以用来修饰类、接口和抽象类，返回默认值（如果是原始类型，返回原始值的默认值，如果为其他对象，则返回一个同样被Mocked的对象）<br>Mocked十分粗暴，会mock掉整个的实现</p>
+<h2 id="Injectable"><a href="#Injectable" class="headerlink" title="@Injectable"></a>@Injectable</h2><p>@Injectable功能跟@Mocked相似，区别是@Injectable只针对修饰的实例，对mock类的静态方法、构造函数没有影响</p>
+<h2 id="Tested"><a href="#Tested" class="headerlink" title="@Tested"></a>@Tested</h2><p>@Tested表示被测试对象。如果该对象没有赋值，JMockit会去实例化它，若@Tested的构造函数有参数，则JMockit通过在测试属性&amp;测试参数中查找@Injectable修饰的Mocked对象注入@Tested对象的构造函数来实例化，<br>不然，则用无参构造函数来实例化。除了构造函数的注入，JMockit还会通过属性查找的方式，把@Injectable对象注入到@Tested对象中。<br>注入的匹配规则：先类型，再名称(构造函数参数名，类的属性名)。若找到多个可以注入的@Injectable，则选择最优先定义的@Injectable对象</p>
+<h2 id="Capturing"><a href="#Capturing" class="headerlink" title="@Capturing"></a>@Capturing</h2><p>@Capturing主要用于子类/实现类的Mock，比如java动态代理生成的类，这些类没有名字，无法进行正常的mock<br>当只知道父类或接口时，但需要控制其子类的行为时，子类可能有多个实现（可能有人工写的，也可能是AOP代理自动生成时），需要使用@Capturing</p>
+<h2 id="Expectations"><a href="#Expectations" class="headerlink" title="Expectations"></a>Expectations</h2><p>Record对象的核心方法，最核心和重要的注解了，可以和引用外部类的Mock对象(@Injectabe,@Mocked,@Capturing)来录制，也可以通过构建函数注入类/对象来录制<br>限制：不能mock对象的native方法和private方法</p>
+<h2 id="MockUp-amp-Mock"><a href="#MockUp-amp-Mock" class="headerlink" title="MockUp &amp; Mock"></a>MockUp &amp; Mock</h2><p>MockUp &amp; @Mock提供更改代码行为的Mock方式，最强大mock实现，主要有以下限制：</p>
+<ol>
+<li>无法mock单个实例</li>
+<li>无法mock动态代理对象</li>
+<li>对类的所有方法都进行Mock，书写MockUp的代码量太大，可以用于项目中比较通用模块，减少大量重复的Exceptations</li>
+</ol>
+<h2 id="Verifications"><a href="#Verifications" class="headerlink" title="Verifications"></a>Verifications</h2><p>Verifications是用于做验证，过程式编程的福音，<br>验证Mock对象（即@Moked/@Injectable@Capturing修饰的或传入Expectation构造函数的对象)有没有调用过某方法，调用了多少次<br>主要用于一些没有返回值的代码验证</p>
+<h1 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h1><pre><code>recoed(录制)--&gt;replay(回放)--&gt;verify(验证)
+</code></pre><p>假设下面这个类是要测试的<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.ctrip.flight.mobile.fio.core.xrecommend.card;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.common.qconfig.factory.QConfigManager;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.core.xrecommend.constant.CardExtraType;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.core.xrecommend.context.AdContext;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.core.xrecommend.service.adbannerservice.AdBannerModelTransfer;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.core.xrecommend.service.adbannerservice.customize.CustomizeAdBannerService;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.model.pojo.adbanner.FlightCompleteAdBannerConfigPojo;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.model.pojo.adbanner.FlightCompleteBannerImgItemDTO;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.flight.mobile.fio.model.pojo.visitorinfo.VisitorInfo;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.model.flight.wireless.fio.ad.v1.entity.FlightMarketCardInformationType;</span><br><span class="line"><span class="keyword">import</span> com.ctrip.model.flight.wireless.fio.ad.v1.entity.FlightXProductExtendInformationType;</span><br><span class="line"><span class="keyword">import</span> com.ctriposs.baiji.rpc.mobile.common.types.MobileRequestHead;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span>(<span class="string">"AdBannerRecommend"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AdBannerRecommend</span> <span class="keyword">extends</span> <span class="title">AbstractRecommend</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> AdBannerModelTransfer adBannerModelTransfer;</span><br><span class="line">    <span class="keyword">private</span> CustomizeAdBannerService customizeAdBannerService;</span><br><span class="line">    <span class="keyword">private</span> QConfigManager qConfigManager;</span><br><span class="line"></span><br><span class="line">   </span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AdBannerRecommend</span><span class="params">(AdBannerModelTransfer adBannerModelTransfer,</span></span></span><br><span class="line"><span class="function"><span class="params">                             CustomizeAdBannerService customizeAdBannerService)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.adBannerModelTransfer = adBannerModelTransfer;</span><br><span class="line">        <span class="keyword">this</span>.customizeAdBannerService = customizeAdBannerService;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;FlightMarketCardInformationType&gt; <span class="title">getMarketCards</span><span class="params">(VisitorInfo visitor, MobileRequestHead head,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                                AdContext adContext)</span> </span>&#123;</span><br><span class="line">        qConfigManager = adContext.getqConfigManager();</span><br><span class="line">        <span class="keyword">return</span> getResult(adContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;FlightMarketCardInformationType&gt; <span class="title">getResult</span><span class="params">(AdContext adContext)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 获得广告横幅卡片，productType=15</span></span><br><span class="line">        List&lt;FlightMarketCardInformationType&gt; cards = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        FlightMarketCardInformationType card = qConfigManager.getAdBannerCard();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置广告横幅的扩展信息，EXTRA_TYPE=18</span></span><br><span class="line">        List&lt;FlightXProductExtendInformationType&gt; extas = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        FlightXProductExtendInformationType exta = <span class="keyword">new</span> FlightXProductExtendInformationType();</span><br><span class="line">        exta.setExtentType(CardExtraType.EXTRA_TYPE_18);</span><br><span class="line">        exta.setContent(buildCard(adContext));</span><br><span class="line">        extas.add(exta);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (card != <span class="keyword">null</span>) &#123;</span><br><span class="line">            card.setExtendInfo(extas);</span><br><span class="line">            cards.add(card);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cards;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">buildCard</span><span class="params">(AdContext adContext)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 从qconfig获得广告位配置，[]</span></span><br><span class="line">        List&lt;FlightCompleteAdBannerConfigPojo&gt; banners = qConfigManager.getAdBanners();</span><br><span class="line"></span><br><span class="line">        List&lt;FlightCompleteBannerImgItemDTO&gt; bs = adBannerModelTransfer.transfer(banners);</span><br><span class="line">        <span class="comment">// 添加所有的自定义广告banner</span></span><br><span class="line">        bs.addAll(buildCustomizeAdBanners(adContext.getVisitorInfo(), adContext));</span><br><span class="line">        <span class="keyword">return</span> JSON.toJSONString(bs);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 大配置版本的广告banner</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> visitor</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> adContext</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> List&lt;FlightCompleteBannerImgItemDTO&gt; <span class="title">buildCustomizeAdBanners</span><span class="params">(VisitorInfo visitor, AdContext adContext)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> customizeAdBannerService.transfer(visitor, adContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getMarketCardsTest</span><span class="params">(<span class="keyword">final</span> @Mocked VisitorInfo visitorInfo, <span class="keyword">final</span> @Mocked MobileRequestHead head, <span class="keyword">final</span> @Mocked AdContext adContext)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">   <span class="comment">//录制方法的预期行为，</span></span><br><span class="line">       <span class="keyword">new</span> MockUp&lt;AdBannerRecommend&gt;() &#123;</span><br><span class="line">           <span class="meta">@Mock</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> List&lt;FlightMarketCardInformationType&gt; <span class="title">getResult</span><span class="params">(AdContext adContext)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">return</span> <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">       <span class="comment">//这里要两个大括号</span></span><br><span class="line">       <span class="keyword">new</span> Expectations() &#123;&#123;</span><br><span class="line">           adContext.getqConfigManager();</span><br><span class="line">           result = <span class="keyword">null</span>;</span><br><span class="line">       &#125;&#125;;</span><br><span class="line">       Assert.assertNotNull(adBannerRecommend.getMarketCards(visitorInfo, head, adContext));</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+            <a href="/tags/单元测试工具/" rel="tag"># 单元测试工具</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/07/Circles/" rel="next" title="Circle">
+                <i class="fa fa-chevron-left"></i> Circle
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/樱木2.jpg" alt="ChenHuang">
+            
+              <p class="site-author-name" itemprop="name">ChenHuang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/Brucise" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简介"><span class="nav-number">2.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#几个概念"><span class="nav-number">3.</span> <span class="nav-text">几个概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CUT-code-under-test"><span class="nav-number">3.1.</span> <span class="nav-text">CUT(code under test)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mock和stub"><span class="nav-number">3.2.</span> <span class="nav-text">mock和stub</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#API用法"><span class="nav-number">4.</span> <span class="nav-text">API用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Mocked"><span class="nav-number">4.1.</span> <span class="nav-text">@Mocked</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Injectable"><span class="nav-number">4.2.</span> <span class="nav-text">@Injectable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tested"><span class="nav-number">4.3.</span> <span class="nav-text">@Tested</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Capturing"><span class="nav-number">4.4.</span> <span class="nav-text">@Capturing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Expectations"><span class="nav-number">4.5.</span> <span class="nav-text">Expectations</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MockUp-amp-Mock"><span class="nav-number">4.6.</span> <span class="nav-text">MockUp &amp; Mock</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Verifications"><span class="nav-number">4.7.</span> <span class="nav-text">Verifications</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用流程"><span class="nav-number">5.</span> <span class="nav-text">使用流程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ChenHuang</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
