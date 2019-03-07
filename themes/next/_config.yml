@@ -94,7 +94,7 @@ index_with_subtitle: false
 menu:
   home: / || home
   Tags: /tags/ || tags
-  #categories: /categories/ || th
+  # Categories: /categories/ || th
   Archives: /archives/ || archive
   Read: read || book
   LiXinGe: /about/ || user
