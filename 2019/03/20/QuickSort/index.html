@@ -86,18 +86,18 @@
 
 
 
-<meta name="description" content="快速排序 时间复杂度是O(n*logn) 不稳定  12345678910111213141516171819202122232425262728private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123;          return;      &amp;#125;">
+<meta name="description" content="介绍特征 时间复杂度是O(n*logn) 不稳定  递归三要素参数、终止条件、返回值123456789101112131415161718192021222324252627private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123; // 终止条件          ret">
 <meta name="keywords" content="排序">
 <meta property="og:type" content="article">
 <meta property="og:title" content="QuickSort">
 <meta property="og:url" content="http://yoursite.com/2019/03/20/QuickSort/index.html">
 <meta property="og:site_name" content="蜗牛壳">
-<meta property="og:description" content="快速排序 时间复杂度是O(n*logn) 不稳定  12345678910111213141516171819202122232425262728private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123;          return;      &amp;#125;">
+<meta property="og:description" content="介绍特征 时间复杂度是O(n*logn) 不稳定  递归三要素参数、终止条件、返回值123456789101112131415161718192021222324252627private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123; // 终止条件          ret">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-03-20T07:35:47.042Z">
+<meta property="og:updated_time" content="2019-03-20T07:41:23.785Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="QuickSort">
-<meta name="twitter:description" content="快速排序 时间复杂度是O(n*logn) 不稳定  12345678910111213141516171819202122232425262728private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123;          return;      &amp;#125;">
+<meta name="twitter:description" content="介绍特征 时间复杂度是O(n*logn) 不稳定  递归三要素参数、终止条件、返回值123456789101112131415161718192021222324252627private void help(int[] array, int left, int right) &amp;#123;      if (left &amp;gt;= right) &amp;#123; // 终止条件          ret">
 
 
 
@@ -327,11 +327,12 @@
       
 
       
-        <h1 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h1><ol>
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><h2 id="特征"><a href="#特征" class="headerlink" title="特征"></a>特征</h2><ol>
 <li>时间复杂度是O(n*logn)</li>
 <li>不稳定</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">help</span><span class="params">(<span class="keyword">int</span>[] array, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (left &gt;= right) &#123;</span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">int</span> n = partition(array, left, right);</span><br><span class="line">      help(array, left, n - <span class="number">1</span>);</span><br><span class="line">      help(array, n + <span class="number">1</span>, right);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] array, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">int</span> v = array[left];</span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">          <span class="keyword">while</span> (v &gt; array[left]) &#123;</span><br><span class="line">              left++;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">while</span> (v &lt; array[right]) &#123;</span><br><span class="line">              right--;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (left &gt;= right) &#123;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          pairs++;</span><br><span class="line">          <span class="keyword">int</span> tmp = array[left];</span><br><span class="line">          array[left] = array[right];</span><br><span class="line">          array[right] = tmp;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> left;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="递归三要素"><a href="#递归三要素" class="headerlink" title="递归三要素"></a>递归三要素</h2><p>参数、终止条件、返回值<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">help</span><span class="params">(<span class="keyword">int</span>[] array, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (left &gt;= right) &#123; <span class="comment">// 终止条件</span></span><br><span class="line">          <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">int</span> n = partition(array, left, right);  <span class="comment">// 切分</span></span><br><span class="line">      help(array, left, n - <span class="number">1</span>);   <span class="comment">//将左半部分排序</span></span><br><span class="line">      help(array, n + <span class="number">1</span>, right);  <span class="comment">//将右半部分排序</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] array, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">int</span> v = array[left];</span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">          <span class="keyword">while</span> (v &gt; array[left]) &#123;</span><br><span class="line">              left++;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">while</span> (v &lt; array[right]) &#123;</span><br><span class="line">              right--;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (left &gt;= right) &#123;</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">int</span> tmp = array[left];</span><br><span class="line">          array[left] = array[right];</span><br><span class="line">          array[right] = tmp;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> left;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+
       
     </div>
     
@@ -370,6 +371,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/21/springboot/" rel="prev" title="springboot启动流程分析">
+                springboot启动流程分析 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -448,7 +453,7 @@
               
                 <a href="/archives">
               
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -461,7 +466,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -504,7 +509,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#快速排序"><span class="nav-number">1.</span> <span class="nav-text">快速排序</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#特征"><span class="nav-number">1.1.</span> <span class="nav-text">特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#递归三要素"><span class="nav-number">1.2.</span> <span class="nav-text">递归三要素</span></a></li></ol></li></ol></div>
             
 
           </div>
